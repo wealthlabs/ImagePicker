@@ -1,10 +1,10 @@
 {
   "version": "2.1.8",
-  "name": "cordova-plugin-telerik-imagepicker",
+  "name": "cordova-plugin-proper-telerik-imagepicker",
   "cordova_name": "ImagePicker",
   "description": "This plugin allows selection of multiple images from the camera roll / gallery in a phonegap app",
   "license": "MIT",
-  "repo": "https://github.com/Telerik-Verified-Plugins/ImagePicker",
+  "repo": "https://github.com/propersoft-cn/ImagePicker",
   "issue": "",
   "keywords": [],
   "platforms": [
@@ -16,5 +16,8 @@
       "name": "cordova",
       "version": ">=3.5.0"
     }
-  ]
+  ],
+  "publishConfig": {
+    "registry": "http://nexus.propersoft.cn:8081/repository/npm-internal/"
+  }
 }
