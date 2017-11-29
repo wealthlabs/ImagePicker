@@ -123,6 +123,8 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
 
     private ProgressDialog progress;
 
+    private boolean cacheRefresh = false;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -155,7 +157,7 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
                     ia.notifyDataSetChanged();
                 }
             }
-
+            
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 float dt = System.currentTimeMillis() - timestamp;
@@ -191,6 +193,10 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
         if (name == null) {
             return;
         }
+        File file = new File(name);
+        if(!file.exists()){
+            return;
+        }        
 
         boolean isChecked = !isChecked(position);
 
@@ -258,6 +264,29 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
                 break;
         }
 
+        // will delete file that not exists in storage
+        if(!cacheRefresh) {
+            String[] imagesProjection = {MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA};
+            Cursor imagesCursor = getContentResolver().query(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    imagesProjection,
+                    null,
+                    null,
+                    null
+            );
+
+            while (imagesCursor.moveToNext()) {
+                String fileNameLocal = imagesCursor.getString(imagesCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                File file = new File(fileNameLocal);
+                if (!file.exists()) {
+                    int idxID = imagesCursor.getColumnIndex(MediaStore.Images.Media._ID);
+                    Uri uri = ContentUris.withAppendedId(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, imagesCursor.getInt(idxID));
+                    getContentResolver().delete(uri, null, null);
+                }
+            }
+            cacheRefresh = true;
+        }
+        
         return new CursorLoader(
                 this,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -517,7 +546,11 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
                 Bitmap bmp;
                 while (i.hasNext()) {
                     Entry<String, Integer> imageInfo = i.next();
+                    //fix for image invalid in grid
                     File file = new File(imageInfo.getKey());
+                    if(!file.exists()){
+                        continue;
+                    }
                     int rotate = imageInfo.getValue();
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inSampleSize = 1;
@@ -661,6 +694,7 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
             int index = fileName.lastIndexOf('.');
             String name = fileName.substring(0, index);
             String ext = fileName.substring(index);
+
             File file = File.createTempFile("tmp_" + name, ext);
             OutputStream outStream = new FileOutputStream(file);
 
