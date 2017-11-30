@@ -77,6 +77,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.content.ContentUris;
 
 public class MultiImageChooserActivity extends AppCompatActivity implements
         OnItemClickListener,
@@ -280,7 +281,7 @@ public class MultiImageChooserActivity extends AppCompatActivity implements
                 File file = new File(fileNameLocal);
                 if (!file.exists()) {
                     int idxID = imagesCursor.getColumnIndex(MediaStore.Images.Media._ID);
-                    Uri uri = ContentUris.withAppendedId(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, imagesCursor.getInt(idxID));
+                    Uri uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imagesCursor.getInt(idxID));
                     getContentResolver().delete(uri, null, null);
                 }
             }
